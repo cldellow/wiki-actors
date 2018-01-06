@@ -23,7 +23,7 @@ sed \
   -e 's# border="[^"]*"##g' \
   -e 's# cellpadding="[^"]*"##g' \
   -e 's#^\s*##' |
-grep . |
+(grep . || true ) |
 tr '\n' ' ' |
 sed \
   -e 's/> />/g' \
