@@ -37,6 +37,7 @@ function main {
       "$here"/strip-html |
       gzip -9 - > $tmp
     mv "$tmp" "$fname"
+    sleep 5 # rate limit access
   fi
   zcat "$fname"
 }
