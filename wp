@@ -9,32 +9,60 @@ function usage {
   echo "  best_actress"
   echo "  fetch best_actor"
   echo "  fetch best_actress"
-  echo "  bday [actor]"
+  echo "  ages best_actor"
+  echo "  ages best_actress"
+  echo "  bday <actor>"
+  echo "  age <actor> [as-of-date, eg 1985-07-20]"
   exit 1
 }
 
-function extract_actors {
-    pup 'table:nth-child(2) tbody tr td:first-child a, table:nth-child(2) tbody tr th + td a' |
-    pup 'a attr{href}' |
-    sed -e 's#^/wiki/##' |
-    sort --unique
+function extract_actor {
+  jq --raw-output '.. | .href?' |
+    awk '/wiki/ && !/_in_film/ && !/_Academy_Awards/ { sub("/wiki/", ""); print }' |
+    head -n1
+}
+
+function parse_table {
+  # Given a Best Actor or Actress page, print out a table like:
+  # year awards actor nominated/won
+  # eg:
+  # 1960 33 Elizabeth_Taylor won
+  year=
+  awards=
+  mode=
+  pup 'table:nth-child(2) tr json{}' |
+    jq --compact-output .[] | # --compact-output = 1 TR per line
+    tail --lines=+2 | # Skip the table header
+    while read -r tr; do
+      if [[ "$tr" =~ ([0-9]+)_in_film ]]; then
+        year="${BASH_REMATCH[1]}"
+        mode=won
+      else
+        mode=nominated
+      fi
+      if [[ "$tr" =~ ([0-9]+).._Academy ]]; then
+        awards="${BASH_REMATCH[1]}"
+      fi
+      who=$(echo "$tr" | extract_actor)
+      echo "$year $awards $who $mode"
+
+    done
 }
 
 function best_actor {
-  bin/fetch Academy_Award_for_Best_Actor .wikitable |
-    extract_actors
+  bin/fetch Academy_Award_for_Best_Actor .wikitable | parse_table
 }
 
 function best_actress {
-  bin/fetch Academy_Award_for_Best_Actress .wikitable |
-    extract_actors
+  bin/fetch Academy_Award_for_Best_Actress .wikitable | parse_table
 }
+
 function infobox {
   "$here"/bin/fetch "$1" .infobox
 }
 
 function fetch {
-  "$@" | while read -r slug; do
+  "$@" | while read -r year awards slug result; do
     echo -n $slug...
     infobox "$slug" | wc -c
   done
@@ -46,6 +74,7 @@ function bday {
   case "$1" in
     "Cary_Grant") echo "1904-01-18" ;;
     "Grace_Moore") echo "1898-12-05" ;;
+    "Kenneth_Branagh") echo "1960-12-10" ;;
     "Laurence_Olivier") echo "1907-05-22" ;;
     "Lawrence_Tibbett") echo "1896-11-16" ;;
     "Rod_Steiger") echo "1925-04-14" ;;
@@ -58,6 +87,12 @@ function age {
   at=${2:-$(date +%Y-%m-%d)}
 
   echo $((($(date +%s --date "$at")-$(date +%s --date "$from")) / 86400 / 365))
+}
+
+function ages {
+  "$@" | while read -r year awards slug result; do
+    echo "$year $awards $slug $result $(age $slug $year-01-01)"
+  done
 }
 
 if [ $# == "0" ]; then
