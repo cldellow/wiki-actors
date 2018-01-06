@@ -1,0 +1,67 @@
+#!/bin/bash
+set -euo pipefail
+
+here=$(dirname "${BASH_SOURCE[0]}")
+
+function usage {
+  echo "$0: interact with Wikipedia"
+  echo "  best_actor"
+  echo "  best_actress"
+  echo "  fetch best_actor"
+  echo "  fetch best_actress"
+  echo "  bday [actor]"
+  exit 1
+}
+
+function extract_actors {
+    pup 'table:nth-child(2) tbody tr td:first-child a, table:nth-child(2) tbody tr th + td a' |
+    pup 'a attr{href}' |
+    sed -e 's#^/wiki/##' |
+    sort --unique
+}
+
+function best_actor {
+  bin/fetch Academy_Award_for_Best_Actor .wikitable |
+    extract_actors
+}
+
+function best_actress {
+  bin/fetch Academy_Award_for_Best_Actress .wikitable |
+    extract_actors
+}
+function infobox {
+  "$here"/bin/fetch "$1" .infobox
+}
+
+function fetch {
+  "$@" | while read -r slug; do
+    echo -n $slug...
+    infobox "$slug" | wc -c
+  done
+}
+
+function bday {
+  # ~1% of articles don't have infoboxes, so we hardcode some dates
+  # for them.
+  case "$1" in
+    "Cary_Grant") echo "1904-01-18" ;;
+    "Grace_Moore") echo "1898-12-05" ;;
+    "Laurence_Olivier") echo "1907-05-22" ;;
+    "Lawrence_Tibbett") echo "1896-11-16" ;;
+    "Rod_Steiger") echo "1925-04-14" ;;
+    *) infobox "$1" | pup '.bday text{}'
+  esac
+}
+
+function age {
+  from=$(bday "$1")
+  at=${2:-$(date +%Y-%m-%d)}
+
+  echo $((($(date +%s --date "$at")-$(date +%s --date "$from")) / 86400 / 365))
+}
+
+if [ $# == "0" ]; then
+  usage
+fi
+
+"$@"
