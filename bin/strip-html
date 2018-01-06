@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Strip unnecessary attributes and tags from a Wikipedia page.
+set -euo pipefail
+
+f="-"
+if [ $# -ne 0 ]; then
+  f="$1"
+fi
+
+sed \
+  -e 's/ style="[^"]*"//g' \
+  -e 's/ title="[^"]*"//g' \
+  -e 's#</*sup[^>]*>##' \
+  -e 's# class="sortkey"##' \
+  -e 's# class="sorttext"##' \
+  -e 's# class="noprint"##' \
+  -e 's# scope="[^"]*"##' \
+  -e 's$ href="#[^"]*"$$' \
+  -e 's# alt="[^"]*"##g' \
+  -e 's# data-file-width="[^"]*"##g' \
+  -e 's# data-file-height="[^"]*"##g' \
+  -e 's# border="[^"]*"##g' \
+  -e 's# cellpadding="[^"]*"##g' \
+  -e 's#^\s*##' |
+grep . |
+tr '\n' ' ' |
+sed \
+  -e 's/> />/g' \
+  -e 's/ </</g' \
+  -e 's#<a>\[[0-9A-Z]*]</a>##g'

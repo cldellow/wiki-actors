@@ -1,0 +1,44 @@
+#!/bin/bash
+set -euo pipefail
+
+# Fetch data from Wikipedia.
+# ./fetch <slug> [css selector]
+
+function finish {
+  rm -f "$tmp"
+}
+tmp=$(mktemp tmp.XXXXXX)
+trap finish EXIT
+
+here=$(dirname "${BASH_SOURCE[0]}")
+
+function puppify {
+  if [ -n "$1" ]; then
+    pup "$1"
+  else
+    pup
+  fi
+}
+
+function main {
+  what=${1:?must specify page, eg Academy_Awards}
+  selector=${2:-}
+
+  fname="$here/../data/$what"
+  selector_hash=$(echo "$selector" | sha256sum | cut -c1-8)
+  if [ -n "$selector" ]; then
+    fname="${fname}#$selector_hash"
+  fi
+  fname="${fname}.gz"
+
+  if [ ! -e "$fname" ]; then
+    curl --silent --compressed --fail "https://en.wikipedia.org/wiki/$what" |
+      puppify "$selector" |
+      "$here"/strip-html |
+      gzip -9 - > $tmp
+    mv "$tmp" "$fname"
+  fi
+  zcat "$fname"
+}
+
+main "$@"
