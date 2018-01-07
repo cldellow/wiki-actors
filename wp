@@ -17,36 +17,24 @@ function usage {
   exit 1
 }
 
-function extract_actor {
-  jq --raw-output '.. | .href?' |
-    awk '/wiki/ && !/_in_film/ && !/_Academy_Awards/ { sub("/wiki/", ""); print; exit }'
-}
-
 function parse_table {
-  # Given a Best Actor or Actress page, print out a table like:
-  # year awards actor nominated/won
-  # eg:
-  # 1960 33 Elizabeth_Taylor won
-  year=
-  awards=
-  mode=
-  pup 'tr json{}' |
-    jq --compact-output .[] | # --compact-output = 1 TR per line
-    tail --lines=+2 | # Skip the table header
-    while read -r tr; do
-      if [[ "$tr" =~ ([0-9]+)_in_film ]]; then
-        year="${BASH_REMATCH[1]}"
-        mode=won
-      else
-        mode=nominated
-      fi
-      if [[ "$tr" =~ ([0-9]+).._Academy ]]; then
-        awards="${BASH_REMATCH[1]}"
-      fi
-      who=$(echo "$tr" | extract_actor)
-      echo "$year $awards $who $mode"
+  pup | gawk '
+  /<tr>/ { link_is_actor=1; next }
 
-    done
+  match($0, /([0-9]+)_in_film/, result) {
+    year=result[1]
+    mode="won"
+    next
+  }
+
+  /_in_film/ || /_Academy_Awards/ { next }
+
+  link_is_actor && match($0, /href="\/wiki\/([^"]+)"/, result) {
+    print year, result[1], mode
+    mode="nominated"
+    link_is_actor=0
+  }
+  '
 }
 
 function best_actor {
@@ -62,7 +50,7 @@ function infobox {
 }
 
 function fetch {
-  "$@" | while read -r year awards slug result; do
+  "$@" | while read -r year slug result; do
     echo -n "$slug..."
     infobox "$slug" | wc -c
   done
@@ -90,8 +78,8 @@ function age {
 }
 
 function ages {
-  "$@" | while read -r year awards slug result; do
-    echo "$year $awards $slug $result $(age "$slug" "$year-01-01")"
+  "$@" | while read -r year slug result; do
+    echo "$year $slug $result $(age "$slug" "$year-01-01")"
   done
 }
 
