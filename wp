@@ -30,7 +30,7 @@ function parse_table {
   year=
   awards=
   mode=
-  pup 'table:nth-child(2) tr json{}' |
+  pup 'tr json{}' |
     jq --compact-output .[] | # --compact-output = 1 TR per line
     tail --lines=+2 | # Skip the table header
     while read -r tr; do
@@ -50,11 +50,11 @@ function parse_table {
 }
 
 function best_actor {
-  bin/fetch Academy_Award_for_Best_Actor .wikitable | parse_table
+  bin/fetch Academy_Award_for_Best_Actor '.sortable:not(.plainrowheaders)' | parse_table
 }
 
 function best_actress {
-  bin/fetch Academy_Award_for_Best_Actress .wikitable | parse_table
+  bin/fetch Academy_Award_for_Best_Actress '.sortable:not(.plainrowheaders)' | parse_table
 }
 
 function infobox {
