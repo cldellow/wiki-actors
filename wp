@@ -19,20 +19,19 @@ function usage {
 
 function parse_table {
   pup | gawk '
-  /<tr>/ { link_is_actor=1; next }
+  /<tr>/ {
+    found_actor=0
+  }
 
   match($0, /([0-9]+)_in_film/, result) {
     year=result[1]
     mode="won"
-    next
   }
 
-  /_in_film/ || /_Academy_Awards/ { next }
-
-  link_is_actor && match($0, /href="\/wiki\/([^"]+)"/, result) {
+  !found_actor && !/_in_film/ && !/_Academy_Awards/ && match($0, /href="\/wiki\/([^"]+)"/, result) {
     print year, result[1], mode
     mode="nominated"
-    link_is_actor=0
+    found_actor=1
   }
   '
 }
