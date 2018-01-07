@@ -18,8 +18,7 @@ function usage {
 
 function extract_actor {
   jq --raw-output '.. | .href?' |
-    awk '/wiki/ && !/_in_film/ && !/_Academy_Awards/ { sub("/wiki/", ""); print }' |
-    head -n1
+    awk '/wiki/ && !/_in_film/ && !/_Academy_Awards/ { sub("/wiki/", ""); print; exit }'
 }
 
 function parse_table {
