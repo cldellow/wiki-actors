@@ -4,13 +4,11 @@ set -euo pipefail
 # Fetch data from Wikipedia.
 # ./fetch <slug> [css selector]
 
+here=$(dirname "${BASH_SOURCE[0]}")
+
 function finish {
   rm -f "$tmp"
 }
-tmp=$(mktemp tmp.XXXXXX)
-trap finish EXIT
-
-here=$(dirname "${BASH_SOURCE[0]}")
 
 function puppify {
   if [ -n "$1" ]; then
@@ -32,6 +30,9 @@ function main {
   fname="${fname}.gz"
 
   if [ ! -e "$fname" ]; then
+    tmp=$(mktemp tmp.XXXXXX)
+    trap finish EXIT
+
     curl --silent --compressed --fail "https://en.wikipedia.org/wiki/$what" |
       puppify "$selector" |
       "$here"/strip-html |
