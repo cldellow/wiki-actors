@@ -1,6 +1,8 @@
 # wiki-actors
 
 Some random exploration of Oscars data.
+See [related blogpost](https://cldellow.com/bash/2018/01/06/scraping-wikipedia-using-bash.html)
+
 
 ## Setup
 
