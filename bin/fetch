@@ -36,7 +36,7 @@ function main {
     curl --silent --compressed --fail "https://en.wikipedia.org/wiki/$what" |
       puppify "$selector" |
       "$here"/strip-html |
-      gzip -9 - > $tmp
+      gzip -9 - > "$tmp"
     mv "$tmp" "$fname"
     sleep 5 # rate limit access
   fi

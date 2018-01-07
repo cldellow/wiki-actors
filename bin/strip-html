@@ -3,11 +3,6 @@
 # Strip unnecessary attributes and tags from a Wikipedia page.
 set -euo pipefail
 
-f="-"
-if [ $# -ne 0 ]; then
-  f="$1"
-fi
-
 sed \
   -e 's/ style="[^"]*"//g' \
   -e 's/ title="[^"]*"//g' \

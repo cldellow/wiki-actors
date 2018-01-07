@@ -62,7 +62,7 @@ function infobox {
 
 function fetch {
   "$@" | while read -r year awards slug result; do
-    echo -n $slug...
+    echo -n "$slug..."
     infobox "$slug" | wc -c
   done
 }
@@ -90,7 +90,7 @@ function age {
 
 function ages {
   "$@" | while read -r year awards slug result; do
-    echo "$year $awards $slug $result $(age $slug $year-01-01)"
+    echo "$year $awards $slug $result $(age "$slug" "$year-01-01")"
   done
 }
 
