@@ -5,14 +5,15 @@ here=$(dirname "${BASH_SOURCE[0]}")
 
 function usage {
   echo "$0: interact with Wikipedia"
+  echo "  age <actor> [as-of-date, eg 1985-07-20]"
+  echo "  ages best_actor"
+  echo "  ages best_actress"
+  echo "  bday <actor>"
   echo "  best_actor"
   echo "  best_actress"
   echo "  fetch best_actor"
   echo "  fetch best_actress"
-  echo "  ages best_actor"
-  echo "  ages best_actress"
-  echo "  bday <actor>"
-  echo "  age <actor> [as-of-date, eg 1985-07-20]"
+  echo "  infobox <actor>"
   exit 1
 }
 

@@ -32,6 +32,9 @@ Run `./wp` to see options.
 Sample output:
 
 ```
+$ ./wp infobox George_Clooney
+[...html spew...]
+
 $ ./wp bday George_Clooney
 1961-05-06
 
