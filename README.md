@@ -47,16 +47,16 @@ $ ./wp age George_Clooney 1970-07-20
 9
 
 $ ./wp best_actor | head -n5
-1927 1 Emil_Jannings won
-1927 1 Richard_Barthelmess nominated
-1928 2 Warner_Baxter won
-1928 2 George_Bancroft_(actor) nominated
-1928 2 Chester_Morris nominated
+1927 Emil_Jannings won
+1927 Richard_Barthelmess nominated
+1928 Warner_Baxter won
+1928 George_Bancroft_(actor) nominated
+1928 Chester_Morris nominated
 
 $ ./wp ages best_actor | head -n5
-1927 1 Emil_Jannings won 42
-1927 1 Richard_Barthelmess nominated 31
-1928 2 Warner_Baxter won 38
-1928 2 George_Bancroft_(actor) nominated 45
-1928 2 Chester_Morris nominated 26
+1927 Emil_Jannings won 42
+1927 Richard_Barthelmess nominated 31
+1928 Warner_Baxter won 38
+1928 George_Bancroft_(actor) nominated 45
+1928 Chester_Morris nominated 26
 ```
